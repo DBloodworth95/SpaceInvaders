@@ -12,12 +12,15 @@ public class Controller {
 
     private ArrayList<Alien> aL = new ArrayList<Alien>();
     private ArrayList<Bullet> bL = new ArrayList<Bullet>();
+    private ArrayList<AlienSplat> aS = new ArrayList<>();
     private int x = 80;
     public int deltaTime;
     public int score;
     Alien a;
     Bullet b;
+    AlienSplat aSplat;
     Game game;
+    private Font scoreFont = new Font("TimesRoman", 4, 17);
 
 
     public Controller(Game game) {
@@ -46,6 +49,10 @@ public class Controller {
             a = aL.get(i);
             a.tick();
         }
+        for (int i = 0; i < aS.size(); i++) {
+            aSplat = aS.get(i);
+            aSplat.tick();
+        }
         for (int i = 0; i < bL.size(); i++) {
             b = bL.get(i);
             if (b.getY() < 0) {
@@ -53,18 +60,26 @@ public class Controller {
             }
             b.tick();
             Iterator<Alien> itr = aL.iterator();
-            while(itr.hasNext()) {
+            while (itr.hasNext()) {
                 a = itr.next();
                 if (b.getBulletBound().intersects(a.getAlienBound())) {
                     a.isDead = true;
                     resetCount();
                 }
-                if (a.isDead == true && deltaTime == 1) {
+                if (a.isDead == true) {
                     removeEntity(b);
                     itr.remove();
+                    addEntity(new AlienSplat(game, a.getX(), a.getY(), false));
                     score = score + 1;
-                }
 
+                }
+            }
+        }
+        if (deltaTime == 30) {
+            Iterator<AlienSplat> asItr = aS.iterator();
+            while (asItr.hasNext()) {
+                aSplat = asItr.next();
+                asItr.remove();
             }
         }
     }
@@ -78,17 +93,17 @@ public class Controller {
             b = bL.get(i);
             b.render(g);
         }
+        for (int i = 0; i < aS.size(); i++) {
+            aSplat = aS.get(i);
+            aSplat.render(g);
+        }
         drawScore(g);
     }
 
     public void drawScore(Graphics g) {
-        Font scoreFont = new Font("TimesRoman", 4, 17);
         g.setFont(scoreFont);
         g.setColor(Color.WHITE);
         g.drawString("Score: " + score, 10,20);
-    }
-    public void drawSplat(Graphics g) {
-        g.drawImage(Asset.alienSplat, (int) x,(int) a.y, a.width, a.height,null);
     }
 
     public void addEntity(Alien a) {
@@ -105,6 +120,12 @@ public class Controller {
     }
     public void resetCount() {
         deltaTime = 0;
+    }
+    public void addEntity(AlienSplat aSplat) {
+        aS.add(aSplat);
+    }
+    public void removeEntity(AlienSplat aSplat) {
+        aS.remove(aSplat);
     }
 
 

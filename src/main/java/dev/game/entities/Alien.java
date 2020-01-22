@@ -24,7 +24,7 @@ public class Alien extends Creature implements EntityInterface {
     public void tick() {
         count++;
         if (count == 60) {
-            y += 10;
+            yMove += speed + 10;
             Imgcount = 1;
         }
         if (count == 120) {
